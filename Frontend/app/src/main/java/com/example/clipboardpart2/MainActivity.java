@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    response.body().string();
+                    clipboard.setPrimaryClip(ClipData.newPlainText("Return from remote clipboard",response.body().string()));
                     Toast.makeText(MainActivity.this, "Copied to Clipboard", Toast.LENGTH_SHORT).show();
 
                 }
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                    response.body().string();
+                    clipboard.setPrimaryClip(ClipData.newPlainText("Return from remote clipboard",response.body().string()));
                     Toast.makeText(MainActivity.this, "Copied to Clipboard", Toast.LENGTH_SHORT).show();
 
                 }
