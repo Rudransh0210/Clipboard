@@ -7,7 +7,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.widget.TextView;
+
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -28,28 +28,65 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String Data;
+        String Data="";
+        OkHttpClient okHttpClient = new OkHttpClient();
 
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
         Data = (String) item.getText();
 
-        OkHttpClient okHttpClient = new OkHttpClient();
+        if(Data.length()==0){
 
-        RequestBody formbody= new FormBody.Builder().add("clipboard_content", Data ).build();
+            Request requestback = new Request.Builder().url("http://172.18.16.1:5000/get").build();
 
-        Request request = new Request.Builder().url("http://172.18.16.1:5000/").post(formbody).build();
+            okHttpClient.newCall(requestback).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Toast.makeText(MainActivity.this, "network not found", Toast.LENGTH_SHORT).show();
+                }
 
-        okHttpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Toast.makeText(MainActivity.this,"network not found", Toast.LENGTH_SHORT).show();
-            }
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    response.body().string();
+                    Toast.makeText(MainActivity.this, "Copied to Clipboard", Toast.LENGTH_SHORT).show();
 
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                Toast.makeText(MainActivity.this,"Copied to Clipboard", Toast.LENGTH_SHORT).show();
-            }
-        });
+                }
+            });
+
+        }
+        else {
+
+            RequestBody formbody = new FormBody.Builder().add("clipboard_content", Data).build();
+
+            Request request = new Request.Builder().url("http://172.18.16.1:5000/post").post(formbody).build();
+
+            okHttpClient.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Toast.makeText(MainActivity.this, "network not found", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    Toast.makeText(MainActivity.this, "Copied to Clipboard", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            Request requestback = new Request.Builder().url("http://172.18.16.1:5000/get").build();
+
+            okHttpClient.newCall(requestback).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    Toast.makeText(MainActivity.this, "network not found", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    response.body().string();
+                    Toast.makeText(MainActivity.this, "Copied to Clipboard", Toast.LENGTH_SHORT).show();
+
+                }
+            });
+        }
     }
 }
